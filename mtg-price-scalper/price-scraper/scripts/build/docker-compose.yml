@@ -1,0 +1,19 @@
+services:
+  scraper:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: price-scraper
+      environment:
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        DB_NAME: mtg-price-scalper
+      networks:
+        - mtg-network
+      restart: on-failure
+
+networks:
+  mtg-network:
+    external: true

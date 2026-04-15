@@ -1,0 +1,32 @@
+/api -> Service Application Directory
+/web -> Web Application Directory static web assets, server side templates, SPAs, etc.
+/configs -> Configuration files
+/init -> Initialization files
+/scripts -> Scripts to perform various tasks like build, install, analysis, operations
+/build -> Packaging and Continuous Integration, Cloud(IAM), container(Docker), OS(deb, rpm, apk, etc.)
+/deployments -> Iaas,Paas, system and container orchestration deployments and templates(docker-compose, kubernetes/helm, terraform, etc.)
+             -> Repos that use Kubernetes this package is called deploy
+/docs -> Documentation
+/tests -> Unit and integration tests
+
+
+
+Here’s a crisp, bullet-style cheat sheet you can use in your virtual AI interview:
+
+Tech Stack Highlights for Crypto Platforms like BitNorm:
+
+Python – backend logic, data processing, API development, blockchain interactions.
+Redis – caching and fast state management for real-time data.
+RabbitMQ / Kafka – message queues for event-driven architectures and high-throughput data pipelines.
+Databases – often MongoDB or PostgreSQL for storing structured and unstructured crypto/market data.
+Cloud & DevOps – AWS or other cloud platforms for scalable, distributed infrastructure; containerization and automation (Docker, CI/CD).
+Data & Analytics – processing market, network, social, and blockchain data in real-time to provide insights.
+
+Optional talking points:
+
+Interest in scalable backend systems and real-time pipelines.
+Excited by applying Python to crypto and Web3 data.
+Familiar with caching and messaging systems to handle high-speed trading/analytics workloads.
+
+If you want, I can also write a 30-second “spoken answer” version you can just say in the AI interview — smooth, confident, and natural. 
+Do you want me to do that?
