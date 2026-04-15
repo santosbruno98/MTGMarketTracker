@@ -1,0 +1,74 @@
+name: CD — Deploy to OCI
+
+on:
+  workflow_run:
+    workflows:
+      - "CI — card-api"
+      - "CI — price-processor"
+      - "CI — alert-service"
+      - "CI — price-scraper"
+    types:
+      - completed
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  deploy-app-server:
+    name: Deploy App Services (VM 1)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to app-server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.APP_SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull latest images
+            docker pull ${{ env.REGISTRY }}/${{ github.repository }}/card-api:latest
+            docker pull ${{ env.REGISTRY }}/${{ github.repository }}/price-processor:latest
+            docker pull ${{ env.REGISTRY }}/${{ github.repository }}/alert-service:latest
+
+            # Restart services
+            cd /opt/mtg-price-scalper
+            docker compose up -d card-api price-processor alert-service
+
+      - name: Smoke test — card-api health
+        run: |
+          sleep 15
+          curl --fail --retry 5 --retry-delay 5 \
+            http://${{ secrets.APP_SERVER_IP }}:8080/actuator/health
+
+  deploy-data-server:
+    name: Deploy Data Services (VM 2)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to data-server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DATA_SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull latest scraper image
+            docker pull ${{ env.REGISTRY }}/${{ github.repository }}/price-scraper:latest
+
+            # Restart scraper (Kafka + Postgres are long-lived, only restart if needed)
+            cd /opt/mtg-price-scalper
+            docker compose up -d price-scraper
